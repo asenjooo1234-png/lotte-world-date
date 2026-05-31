@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Dom Elements
   // ==========================================================================
   const firstPage = document.getElementById('first-page');
+  const emailPage = document.getElementById('email-page');
   const secondPage = document.getElementById('second-page');
   const btnYes = document.getElementById('btn-yes');
   const btnNo = document.getElementById('btn-no');
@@ -17,13 +18,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsForm = document.getElementById('settings-form');
   const btnResetSettings = document.getElementById('btn-reset-settings');
   
-  // Form inputs
+  // Email Form inputs
+  const emailForm = document.getElementById('email-form');
+  const gfEmailInput = document.getElementById('gf-email-input');
+  const btnSubmitEmail = document.getElementById('btn-submit-email');
+
+  // Form settings inputs
   const inputSenderEmail = document.getElementById('sender-email');
   const inputGirlfriendEmail = document.getElementById('girlfriend-email');
   const inputDateVal = document.getElementById('date-val');
   const inputPublicKey = document.getElementById('emailjs-public-key');
   const inputServiceId = document.getElementById('emailjs-service-id');
   const inputTemplateId = document.getElementById('emailjs-template-id');
+  const inputConfirmTemplateId = document.getElementById('emailjs-confirm-template-id');
   
   // View elements
   const displayDate = document.getElementById('display-date');
@@ -60,11 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const DEFAULTS = {
     senderEmail: 'asenjooo1234@gmail.com',
-    girlfriendEmail: '',
+    girlfriendEmail: 'g.narngua@gmail.com',
     dateVal: '2026.06.02',
     publicKey: '',
     serviceId: '',
-    templateId: ''
+    templateId: '',
+    confirmTemplateId: ''
   };
 
   // Load configuration
@@ -74,7 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
     dateVal: safeStorage.getItem('inv_date_val') || DEFAULTS.dateVal,
     publicKey: safeStorage.getItem('inv_pub_key') || DEFAULTS.publicKey,
     serviceId: safeStorage.getItem('inv_srv_id') || DEFAULTS.serviceId,
-    templateId: safeStorage.getItem('inv_tmp_id') || DEFAULTS.templateId
+    templateId: safeStorage.getItem('inv_tmp_id') || DEFAULTS.templateId,
+    confirmTemplateId: safeStorage.getItem('inv_conf_tmp_id') || DEFAULTS.confirmTemplateId
   };
 
   // Pre-fill form fields and display values
@@ -85,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     inputPublicKey.value = config.publicKey;
     inputServiceId.value = config.serviceId;
     inputTemplateId.value = config.templateId;
+    inputConfirmTemplateId.value = config.confirmTemplateId;
     
     // Update the second page ticket date
     displayDate.textContent = config.dateVal;
@@ -106,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     config.publicKey = inputPublicKey.value.trim();
     config.serviceId = inputServiceId.value.trim();
     config.templateId = inputTemplateId.value.trim();
+    config.confirmTemplateId = inputConfirmTemplateId.value.trim();
 
     safeStorage.setItem('inv_sender_email', config.senderEmail);
     safeStorage.setItem('inv_girlfriend_email', config.girlfriendEmail);
@@ -113,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     safeStorage.setItem('inv_pub_key', config.publicKey);
     safeStorage.setItem('inv_srv_id', config.serviceId);
     safeStorage.setItem('inv_tmp_id', config.templateId);
+    safeStorage.setItem('inv_conf_tmp_id', config.confirmTemplateId);
 
     applyConfigToUI();
     closeModal();
@@ -128,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
       safeStorage.removeItem('inv_pub_key');
       safeStorage.removeItem('inv_srv_id');
       safeStorage.removeItem('inv_tmp_id');
+      safeStorage.removeItem('inv_conf_tmp_id');
       
       config = { ...DEFAULTS };
       applyConfigToUI();
@@ -462,83 +475,144 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ==========================================================================
-  // EmailJS Dispatches
+  // EmailJS Dispatches & Flows
   // ==========================================================================
-  function sendEmailNotification() {
-    // Format email content matching prompt requirements
-    const templateParams = {
+  async function sendNotificationAndConfirmation(gfEmail, acceptanceTime, browserInfo) {
+    // 1. Notification Email Parameters (To: asenjooo1234@gmail.com)
+    const notificationParams = {
       subject: "She said yes to the Lotte World date 🎡❤️",
       message: `She accepted the Lotte World date invitation.
 
-Date: ${config.dateVal}
+Date: 2026.06.02
 Place: Lotte World
 
+Acceptance Date & Time: ${acceptanceTime}
+Her Email Address: ${gfEmail}
+Browser Information: ${browserInfo}
+
 A cute and happy memory is waiting for us.`,
-      to_email: config.girlfriendEmail,
-      sender_email: config.senderEmail,
+      to_email: config.senderEmail, // Sent to you!
+      gf_email: gfEmail,
+      acceptance_time: acceptanceTime,
+      browser_info: browserInfo,
       date_val: config.dateVal,
       place_val: "Lotte World"
     };
 
-    // If EmailJS credentials are NOT configured locally
-    if (!config.publicKey || !config.serviceId || !config.templateId) {
-      console.warn("EmailJS credentials are not configured. Emulating email send.");
-      showToast("Email simulation success! Pre-fill target emails successfully noted! 💌");
-      
-      // Output template to console for user to inspect
-      console.log("----- Sent Email Simulated (No keys) -----");
-      console.log("To:", config.senderEmail, "and", config.girlfriendEmail);
-      console.log("Subject:", templateParams.subject);
-      console.log("Body:\n", templateParams.message);
+    // 2. Confirmation Email Parameters (To: girlfriend's email)
+    const confirmationParams = {
+      subject: "Lotte World Date Confirmation 🎡❤️",
+      message: `Thank you for accepting the invitation.
+
+Date: 2026.06.02
+Place: Lotte World
+
+I am looking forward to spending a wonderful day with you.
+
+See you soon ❤️`,
+      to_email: gfEmail, // Sent to her!
+      date_val: config.dateVal,
+      place_val: "Lotte World"
+    };
+
+    // Case A: If EmailJS is NOT configured in settings
+    if (!config.publicKey || !config.serviceId || !config.templateId || !config.confirmTemplateId) {
+      console.warn("EmailJS credentials are not fully configured in settings. Emulating email sending.");
+      showToast("Email simulation success! Pre-fills noted successfully! 💌");
+
+      // Print simulated payloads to developer tools
+      console.log("==========================================");
+      console.log("💌 [EMAIL 1: NOTIFICATION TO YOU]");
+      console.log("To:", config.senderEmail);
+      console.log("Subject:", notificationParams.subject);
+      console.log("Body:\n", notificationParams.message);
       console.log("------------------------------------------");
+      console.log("💌 [EMAIL 2: CONFIRMATION TO HER]");
+      console.log("To:", gfEmail);
+      console.log("Subject:", confirmationParams.subject);
+      console.log("Body:\n", confirmationParams.message);
+      console.log("==========================================");
+      
+      // Proceed directly
+      proceedToSuccessPage();
       return;
     }
 
-    // Attempt real dispatch using standard EmailJS SDK
-    showToast("Sending cute email notification... 🕊️");
+    // Case B: Live EmailJS dispatching
+    showToast("Drafting your ticket and sending emails... 🕊️");
+    btnSubmitEmail.innerHTML = 'Sending... <i class="fa-solid fa-spinner fa-spin"></i>';
 
-    // EmailJS sends to the configured templates
-    // Standard practice: send one call passing arguments
-    // We send via emailjs.send
-    emailjs.send(config.serviceId, config.templateId, templateParams)
-      .then((response) => {
-        console.log("SUCCESS!", response.status, response.text);
-        showToast("Success! An invitation notification email was sent! ✉️💖");
-      }, (error) => {
-        console.error("FAILED...", error);
-        showToast("Email sending failed. Please check your credentials in settings! 😢", true);
-      });
+    try {
+      // Dispatch both emails concurrently using the saved template IDs
+      await Promise.all([
+        emailjs.send(config.serviceId, config.templateId, notificationParams),
+        emailjs.send(config.serviceId, config.confirmTemplateId, confirmationParams)
+      ]);
+
+      console.log("Emails successfully sent via EmailJS!");
+      showToast("Success! Confirmation and notifications sent! 🎟️💌");
+    } catch (error) {
+      console.error("EmailJS sending failed:", error);
+      showToast("Verification failed. Transitioning anyway, please check API keys! 🌸", true);
+    } finally {
+      proceedToSuccessPage();
+    }
   }
 
-
-  // ==========================================================================
-  // Yes Button: Page Transitions & Trigger
-  // ==========================================================================
-  btnYes.addEventListener('click', () => {
-    // 1. Disable buttons to prevent double-sends
-    btnYes.disabled = true;
-    btnNo.disabled = true;
-
-    // 2. Explode confetti
+  function proceedToSuccessPage() {
+    // Explode confetti
     triggerConfettiBurst();
 
-    // 3. Dispatch EmailJS
-    sendEmailNotification();
-
-    // 4. Smooth transition to Page 2 (with gentle delay for confetti effect)
     setTimeout(() => {
-      // Fade out
-      firstPage.classList.add('hidden');
-      firstPage.classList.remove('active');
+      // Transition to final page
+      emailPage.classList.add('hidden');
+      emailPage.classList.remove('active');
       
-      // Fade in second card
       secondPage.classList.remove('hidden');
       secondPage.classList.add('active');
 
-      // Continuous smaller bursts to celebrate page change
+      // Continuous bursts to celebrate!
       setTimeout(triggerConfettiBurst, 400);
       setTimeout(triggerConfettiBurst, 1000);
-    }, 800);
+    }, 600);
+  }
+
+  // ==========================================================================
+  // Navigation Page Event Bindings
+  // ==========================================================================
+  
+  // Step 1: Click Yes, transition from First Page to Email Input Page
+  btnYes.addEventListener('click', () => {
+    btnYes.disabled = true;
+    btnNo.disabled = true;
+
+    firstPage.classList.add('hidden');
+    firstPage.classList.remove('active');
+
+    emailPage.classList.remove('hidden');
+    emailPage.classList.add('active');
+    
+    // Auto-focus email input for ease of use
+    gfEmailInput.focus();
+  });
+
+  // Step 2: Girlfriend enters her email and submits
+  emailForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const gfEmail = gfEmailInput.value.trim();
+    if (!gfEmail) return;
+
+    // Disable input and button to prevent double submit
+    gfEmailInput.disabled = true;
+    btnSubmitEmail.disabled = true;
+
+    // Fetch user environment metadata
+    const acceptanceTime = new Date().toLocaleString();
+    const browserInfo = navigator.userAgent;
+
+    // Trigger EmailJS dispatches
+    sendNotificationAndConfirmation(gfEmail, acceptanceTime, browserInfo);
   });
 
 });

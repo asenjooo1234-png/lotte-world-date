@@ -47,6 +47,30 @@
       </div>
     </section>
 
+    <!-- PAGE 1.5: The Email Input Card -->
+    <section id="email-page" class="card hidden">
+      <div class="heart-pulse-icon">
+        <i class="fa-solid fa-envelope-open-text"></i>
+      </div>
+      <h1 class="card-title">Just one tiny thing... 💌</h1>
+      
+      <div class="card-message">
+        <p>I am so happy you said yes! Please enter your email address below to receive your official date ticket and confirmation.</p>
+        <p class="highlight-text">Please enter your email address ❤️</p>
+      </div>
+
+      <form id="email-form" class="email-input-form">
+        <div class="form-group">
+          <input type="email" id="gf-email-input" class="large-email-input" placeholder="your.email@gmail.com" required>
+        </div>
+        <div class="button-group">
+          <button type="submit" id="btn-submit-email" class="btn btn-yes">
+            Receive Ticket <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      </form>
+    </section>
+
     <!-- PAGE 2: The Acceptance Celebration Page -->
     <section id="second-page" class="card hidden">
       <div class="carousel-icon">
@@ -177,14 +201,18 @@
             <label for="emailjs-public-key">Public Key (User ID)</label>
             <input type="text" id="emailjs-public-key" placeholder="e.g. user_abcdef123456789">
           </div>
+          <div class="form-group">
+            <label for="emailjs-service-id">Service ID</label>
+            <input type="text" id="emailjs-service-id" placeholder="e.g. service_gmail">
+          </div>
           <div class="form-row">
             <div class="form-group">
-              <label for="emailjs-service-id">Service ID</label>
-              <input type="text" id="emailjs-service-id" placeholder="e.g. service_gmail">
+              <label for="emailjs-template-id">Notification Template ID</label>
+              <input type="text" id="emailjs-template-id" placeholder="e.g. template_notification">
             </div>
             <div class="form-group">
-              <label for="emailjs-template-id">Template ID</label>
-              <input type="text" id="emailjs-template-id" placeholder="e.g. template_date">
+              <label for="emailjs-confirm-template-id">Confirmation Template ID</label>
+              <input type="text" id="emailjs-confirm-template-id" placeholder="e.g. template_confirmation">
             </div>
           </div>
         </div>
