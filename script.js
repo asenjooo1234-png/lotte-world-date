@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const DEFAULTS = {
     senderEmail: 'asenjooo1234@gmail.com',
-    girlfriendEmail: 'g.narngua@gmail.com',
+    girlfriendEmail: '',
     dateVal: '2026.06.02',
     publicKey: '',
     serviceId: '',
