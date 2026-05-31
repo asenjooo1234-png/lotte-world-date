@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Will You Go To Lotte World With Me? 🎡</title>
+  <!-- Google Fonts: Fredoka for rounded cuteness & Outfit for clean body text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <!-- FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- CSS Styling -->
+  <link rel="stylesheet" href="style.css">
+  <!-- EmailJS SDK -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+
+  <!-- Floating Hearts & Stars Canvas Background -->
+  <canvas id="floating-canvas"></canvas>
+
+  <!-- Confetti Explosion Canvas Layer -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Main Container -->
+  <main class="container">
+    
+    <!-- PAGE 1: The Date Invitation Card -->
+    <section id="first-page" class="card active">
+      <div class="heart-pulse-icon">
+        <i class="fa-solid fa-heart"></i>
+      </div>
+      <h1 class="card-title">Will you go on a Lotte World date with me? 🎡</h1>
+      
+      <div class="card-message">
+        <p>I wanted to make this a little more special than just asking by message.</p>
+        <p>I know I may not always be perfect, and if I ever made you upset or disappointed, I’m sorry.</p>
+        <p>But I really want to make happy memories with you.</p>
+        <p class="highlight-text">So today, I want to ask you…</p>
+        <p class="final-question">Will you go to Lotte World with me?</p>
+      </div>
+
+      <div class="button-group">
+        <button id="btn-yes" class="btn btn-yes">Yes ❤️</button>
+        <button id="btn-no" class="btn btn-no">No 😢</button>
+      </div>
+    </section>
+
+    <!-- PAGE 2: The Acceptance Celebration Page -->
+    <section id="second-page" class="card hidden">
+      <div class="carousel-icon">
+        <i class="fa-solid fa-face-laugh-beam"></i>
+      </div>
+      
+      <h1 class="card-title">Thank you for saying yes ❤️</h1>
+      
+      <div class="card-message">
+        <p>Thank you for accepting my little date invitation.</p>
+        <p>I’m really happy that we can make another beautiful memory together.</p>
+        <p>If I have ever made you sad or upset, I’m truly sorry.</p>
+        <p class="highlight-text">From now on, I want to give you more smiles, more comfort, and more happy moments.</p>
+        <p class="emotional-closing">I hope our day at Lotte World becomes a bright and unforgettable memory for both of us. ✨</p>
+      </div>
+
+      <!-- Date Section / Romantic Ticket Details -->
+      <div class="ticket-container">
+        <div class="ticket-header">
+          <span>🎡 LOTTE WORLD DATE TICKET 🎟️</span>
+        </div>
+        <div class="ticket-body">
+          <div class="ticket-info">
+            <div class="info-item">
+              <span class="label">Date:</span>
+              <span class="value" id="display-date">2026.06.02</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Place:</span>
+              <span class="value">Lotte World</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Ticket:</span>
+              <span class="value success-badge">Already prepared 🎟️</span>
+            </div>
+          </div>
+          <div class="ticket-stub">
+            <div class="stub-line"></div>
+            <div class="stub-content">
+              <div class="stub-code">ADMIT ONE</div>
+              <div class="stub-heart"><i class="fa-solid fa-heart"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Memory Photo Gallery Section -->
+      <h2 class="section-title">Our Memory Album 📸</h2>
+      <div class="gallery-grid">
+        
+        <!-- Polaroid 1: Ticket and Castle illustration -->
+        <div class="polaroid-card">
+          <div class="polaroid-image-wrapper">
+            <img id="polaroid-img-1" src="assets/ticket_placeholder.svg" alt="Lotte World Magic Castle">
+          </div>
+          <div class="polaroid-caption">Magic Castle Awaits! 🏰</div>
+        </div>
+
+        <!-- Polaroid 2: Photo Slot 1 -->
+        <div class="polaroid-card">
+          <div class="polaroid-image-wrapper">
+            <img id="polaroid-img-2" src="assets/our_photos.svg" alt="Our Photos">
+          </div>
+          <div class="polaroid-caption">You & Me 💕</div>
+        </div>
+
+        <!-- Polaroid 3: Photo Slot 2 -->
+        <div class="polaroid-card">
+          <div class="polaroid-image-wrapper">
+            <img id="polaroid-img-3" src="assets/cute_memories.svg" alt="Cute Memories">
+          </div>
+          <div class="polaroid-caption">Making Happy Memories 🎠</div>
+        </div>
+
+      </div>
+
+      <div class="gallery-instructions">
+        <i class="fa-solid fa-info-circle"></i>
+        <span>Tip: You can replace the files in the <code>assets/</code> folder with your own photos to make it truly ours!</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast hidden">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toast-message">Notification Sent! ✉️</span>
+  </div>
+
+  <!-- Settings Float Button -->
+  <button id="btn-settings" class="btn-settings" title="Configure EmailJS Settings">
+    <i class="fa-solid fa-gear"></i>
+  </button>
+
+  <!-- Settings Modal (Glassmorphic Interface) -->
+  <div id="settings-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-gears"></i> Date Invitation Settings</h3>
+        <button id="modal-close" class="modal-close-btn">&times;</button>
+      </div>
+      <p class="modal-description">Configure your EmailJS keys and email defaults directly in your browser. They are saved instantly to <strong>localStorage</strong>.</p>
+      
+      <form id="settings-form">
+        <div class="form-section">
+          <h4><i class="fa-solid fa-envelope"></i> Email Settings</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="sender-email">Your Email (Sender)</label>
+              <input type="email" id="sender-email" value="asenjooo1234@gmail.com" required>
+            </div>
+            <div class="form-group">
+              <label for="girlfriend-email">Girlfriend's Email (Receiver)</label>
+              <input type="email" id="girlfriend-email" value="g.narngua@gmail.com" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="date-val">Date of the Date</label>
+            <input type="text" id="date-val" value="2026.06.02" required>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4><i class="fa-solid fa-key"></i> EmailJS Configuration</h4>
+          <p class="form-note">Get these keys from your <a href="https://dashboard.emailjs.com/" target="_blank" rel="noopener">EmailJS Dashboard</a> to activate live email sending.</p>
+          <div class="form-group">
+            <label for="emailjs-public-key">Public Key (User ID)</label>
+            <input type="text" id="emailjs-public-key" placeholder="e.g. user_abcdef123456789">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="emailjs-service-id">Service ID</label>
+              <input type="text" id="emailjs-service-id" placeholder="e.g. service_gmail">
+            </div>
+            <div class="form-group">
+              <label for="emailjs-template-id">Template ID</label>
+              <input type="text" id="emailjs-template-id" placeholder="e.g. template_date">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="btn-reset-settings" class="btn-secondary">Reset Defaults</button>
+          <button type="submit" class="btn-primary">Save Settings <i class="fa-solid fa-floppy-disk"></i></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript Behavior -->
+  <script src="script.js"></script>
+</body>
+</html>
